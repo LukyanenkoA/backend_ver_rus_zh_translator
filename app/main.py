@@ -7,7 +7,7 @@ import app.services as _services, app.schemas as _schemas, app.model as _model
 app = _fastapi.FastAPI()
 
 
-@app.post("/api/words")
+@app.post("/words")
 async def create_word(
         word: _schemas.WordCreate, db: _orm.Session = _fastapi.Depends(_services.get_db)
 ):
@@ -23,7 +23,7 @@ def hello_world():
     return {'hello': 'world'}
 
 
-@app.get("/api/words")
+@app.get("/words")
 def get_words(db: _orm.Session = _fastapi.Depends(_services.get_db)):
     return db.query(_model.Word).all()
 
@@ -44,7 +44,7 @@ app.add_middleware(
 )
 
 
-@app.get("/api/words/{word}", response_model=_schemas.Word)
+@app.get("/words/{word}", response_model=_schemas.Word)
 async def get_word(word, db: _orm.Session = _fastapi.Depends(_services.get_db)):
     # get translated word by simplified version
     db_word = db.query(_model.Word).filter(_model.Word.simplified == word).first()
