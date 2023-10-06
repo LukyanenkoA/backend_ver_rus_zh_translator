@@ -92,7 +92,7 @@ try:
     sqlite_insert_with_param = """INSERT INTO words
                           (id,traditional, simplified, pinyin, english, hsk)
                            VALUES(?, ?, ?, ?, ?, ?);"""
-    data_tuple = ('4', '好', '好', 'hǎo', 'good, excellent, fine; well', 1)
+    data_tuple = (4, '好', '好', 'hǎo', 'good, excellent, fine; well', 1)
     cursor.execute(sqlite_insert_with_param, data_tuple)
     sqlite_connection.commit()
     print("success ", cursor.rowcount)
