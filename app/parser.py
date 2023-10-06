@@ -16,13 +16,15 @@
 # !/usr/bin/env python3
 import shutil
 import sys
+import sqlite3
+import app.model as _model
 
-with open('cedict_t.u8', encoding='utf-8') as file:
+list_of_dicts = []
+with open('C:/c_work/py_backend/resources/cedict_t.u8', encoding='utf-8') as file:
     shutil.copyfileobj(file, sys.stdout)
     text = file.read()
     lines = text.split('\n')
     dict_lines = list(lines)
-
 
     # define functions
 
@@ -61,24 +63,44 @@ with open('cedict_t.u8', encoding='utf-8') as file:
     def main():
 
         # make each line into a dictionary
-        # print("Parsing dictionary . . .")
+        print("Parsing dictionary . . .")
         for line in dict_lines:
+            print('Done!')
             parse_line(line)
-
         # remove entries for surnames from the data (optional):
 
         # print("Removing Surnames . . .")
         remove_surnames()
-        # print('Done!')
+        print('Done!')
+
         return list_of_dicts
 
-        # If you want to save to a database as JSON objects, create a class Word in the Models file of your Django project:
+        # If you want to save to a database as JSON objects, create a class Word in the Models file of your Django
+        # project:
 
         # print("Saving to database (this may take a few minutes) . . .")
         # for one_dict in list_of_dicts:
-        #     new_word = Word(traditional = one_dict["traditional"], simplified = one_dict["simplified"], english = one_dict["english"], pinyin = one_dict["pinyin"], hsk = one_dict["hsk"])
+        #     new_word = _model.Word(traditional=one_dict["traditional"], simplified=one_dict["simplified"],
+        #                            english=one_dict["english"], pinyin=one_dict["pinyin"], hsk=one_dict["hsk"])
         #     new_word.save()
 
-
-list_of_dicts = []
 parsed_dict = main()
+try:
+    sqlite_connection = sqlite3.connect('C:/c_work/py_backend/resources/database.db')
+    cursor = sqlite_connection.cursor()
+    print("Connected to SQLite")
+    sqlite_insert_with_param = """INSERT INTO words
+                          (id,traditional, simplified, pinyin, english, hsk)
+                           VALUES(?, ?, ?, ?, ?, ?);"""
+    data_tuple = ('4', '好', '好', 'hǎo', 'good, excellent, fine; well', 1)
+    cursor.execute(sqlite_insert_with_param, data_tuple)
+    sqlite_connection.commit()
+    print("success ", cursor.rowcount)
+    cursor.close()
+
+except sqlite3.Error as error:
+    print("Error while working with SQLite", error)
+finally:
+    if sqlite_connection:
+        sqlite_connection.close()
+        print("Connection to SQLite is closed")
