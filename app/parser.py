@@ -19,9 +19,12 @@ import sys
 import sqlite3
 import app.model as _model
 
+import os
+print(os.getcwd())
+
+
 list_of_dicts = []
-with open('C:/c_work/py_backend/resources/cedict_t.u8', encoding='utf-8') as file:
-    shutil.copyfileobj(file, sys.stdout)
+with open('resources/cedict_t.u8', encoding='utf-8') as file:
     text = file.read()
     lines = text.split('\n')
     dict_lines = list(lines)
@@ -37,7 +40,7 @@ with open('C:/c_work/py_backend/resources/cedict_t.u8', encoding='utf-8') as fil
         line = line.split('/')
         if len(line) <= 1:
             return 0
-        english = line[1]
+        english = ', '.join(line[1:])
         char_and_pinyin = line[0].split('[')
         characters = char_and_pinyin[0]
         characters = characters.split()
@@ -85,15 +88,19 @@ with open('C:/c_work/py_backend/resources/cedict_t.u8', encoding='utf-8') as fil
         #     new_word.save()
 
 parsed_dict = main()
+print(parsed_dict)
+i = 6
 try:
-    sqlite_connection = sqlite3.connect('C:/c_work/py_backend/resources/database.db')
+    sqlite_connection = sqlite3.connect('resources/database.db')
     cursor = sqlite_connection.cursor()
     print("Connected to SQLite")
-    sqlite_insert_with_param = """INSERT INTO words
-                          (id,traditional, simplified, pinyin, english, hsk)
-                           VALUES(?, ?, ?, ?, ?, ?);"""
-    data_tuple = (4, '好', '好', 'hǎo', 'good, excellent, fine; well', 1)
-    cursor.execute(sqlite_insert_with_param, data_tuple)
+    for line in parsed_dict:
+        sqlite_insert_with_param = """INSERT INTO words
+                              (id,traditional, simplified, pinyin, english, hsk)
+                               VALUES(?, ?, ?, ?, ?, ?);"""
+        data_tuple = (i, line["traditional"], line["simplified"], line["english"], line["pinyin"], 0)
+        cursor.execute(sqlite_insert_with_param, data_tuple)
+        i+=1
     sqlite_connection.commit()
     print("success ", cursor.rowcount)
     cursor.close()
