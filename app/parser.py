@@ -98,7 +98,7 @@ try:
         sqlite_insert_with_param = """INSERT INTO words
                               (id,traditional, simplified, pinyin, english, hsk)
                                VALUES(?, ?, ?, ?, ?, ?);"""
-        data_tuple = (i, line["traditional"], line["simplified"], line["english"], line["pinyin"], 0)
+        data_tuple = (i, line["traditional"], line["simplified"], line["pinyin"], line["english"], 0)
         cursor.execute(sqlite_insert_with_param, data_tuple)
         i+=1
     sqlite_connection.commit()
@@ -111,3 +111,20 @@ finally:
     if sqlite_connection:
         sqlite_connection.close()
         print("Connection to SQLite is closed")
+def delete_tuple():
+    try:
+        sqlite_connection = sqlite3.connect('resources/database.db')
+        cursor = sqlite_connection.cursor()
+        print("Connected to SQLite")
+        sql_delete_query = """DELETE from words where id = 8"""
+        cursor.execute(sql_delete_query)
+        sqlite_connection.commit()
+        print("success ", cursor.rowcount)
+        cursor.close()
+
+    except sqlite3.Error as error:
+        print("Error while working with SQLite", error)
+    finally:
+        if sqlite_connection:
+            sqlite_connection.close()
+            print("Connection to SQLite is closed")
