@@ -4,14 +4,11 @@
 # Make sure that the cedict_ts.u8 file is in the same folder as this file, and that the name matches the file name on
 # line 13.
 
-
 # Before starting, open the CEDICT text file and delete the copyright information at the top. Otherwise the program
 # will try to parse it and you will get an error message.
 
-
 # Characters that are commonly used as surnames have two entries in CC-CEDICT. This program will remove the surname
 # entry if there is another entry for the character. If you want to include the surnames, simply delete lines 59 and 60.
-
 
 # This code was written by Franki Allegra in February 2020.
 
@@ -28,7 +25,7 @@ import os
 print(os.getcwd())
 
 list_of_dicts = []
-with open('resources/cedict_t.u8', encoding='utf-8') as file:
+with open('resources/cedict_ts.u8', encoding='utf-8') as file:
     text = file.read()
     lines = text.split('\n')
     dict_lines = list(lines)
@@ -120,8 +117,8 @@ def get_characters(simplified):
 
 #print(get_characters('世涛d'))
 
-for line in parsed_dict:
-    print(line["simplified"], get_characters(line["simplified"]))
+# for line in parsed_dict:
+    # print(line["simplified"], get_characters(line["simplified"]))
 def insert_tuples():
     i = 1
     try:
@@ -139,7 +136,6 @@ def insert_tuples():
                 sqlite_insert_with_param = """INSERT INTO words
                                       (id,traditional, simplified, pinyin, english, hsk)
                                        VALUES(?, ?, ?, ?, ?, ?);"""
-                print(get_characters(line["simplified"]))
                 data_tuple = (i, line["traditional"], line["simplified"], line["pinyin"], line["english"], 0)
                 cursor.execute(sqlite_insert_with_param, data_tuple)
                 i += 1
