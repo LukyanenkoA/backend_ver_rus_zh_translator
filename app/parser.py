@@ -4,11 +4,14 @@
 # Make sure that the cedict_ts.u8 file is in the same folder as this file, and that the name matches the file name on
 # line 13.
 
+
 # Before starting, open the CEDICT text file and delete the copyright information at the top. Otherwise the program
 # will try to parse it and you will get an error message.
 
+
 # Characters that are commonly used as surnames have two entries in CC-CEDICT. This program will remove the surname
 # entry if there is another entry for the character. If you want to include the surnames, simply delete lines 59 and 60.
+
 
 # This code was written by Franki Allegra in February 2020.
 
