@@ -24,7 +24,7 @@ import os
 print(os.getcwd())
 
 list_of_dicts = []
-with open('resources/cedict_ts.u8', encoding='utf-8') as file:
+with open('resources/cedict_t.u8', encoding='utf-8') as file:
     text = file.read()
     lines = text.split('\n')
     dict_lines = list(lines)
@@ -88,9 +88,36 @@ with open('resources/cedict_ts.u8', encoding='utf-8') as file:
         #     new_word.save()
 
 parsed_dict = main()
+
+
 print(parsed_dict)
 
+def get_characters(simplified):
+    f = False
+    try:
+        sqlite_connection = sqlite3.connect('resources/database.db')
+        cursor = sqlite_connection.cursor()
+        print("Connected to SQLite")
 
+        sql_select_query = """select * from words where simplified = ?"""
+        cursor.execute(sql_select_query, (simplified,))
+        record = cursor.fetchall()
+        if record[0][1]:
+            f = True
+        cursor.close()
+    except sqlite3.Error as error:
+        print("Error while working with SQLite", error)
+    finally:
+        if sqlite_connection:
+            sqlite_connection.close()
+            print("Connection to SQLite is closed")
+            return f
+
+
+#print(get_characters('世涛d'))
+
+for line in parsed_dict:
+    print(line["simplified"], get_characters(line["simplified"]))
 def insert_tuples():
     i = 1
     try:
@@ -98,18 +125,26 @@ def insert_tuples():
         cursor = sqlite_connection.cursor()
         print("Connected to SQLite")
         for line in parsed_dict:
-            sqlite_insert_with_param = """INSERT INTO words
-                                  (id,traditional, simplified, pinyin, english, hsk)
-                                   VALUES(?, ?, ?, ?, ?, ?);"""
-            data_tuple = (i, line["traditional"], line["simplified"], line["pinyin"], line["english"], 0)
-            cursor.execute(sqlite_insert_with_param, data_tuple)
-            i += 1
+            f = False
+            sql_select_query = """select * from words where simplified = ?"""
+            cursor.execute(sql_select_query, (line["simplified"],))
+            record = cursor.fetchall()
+            if record:
+                f = True
+            if not f:
+                sqlite_insert_with_param = """INSERT INTO words
+                                      (id,traditional, simplified, pinyin, english, hsk)
+                                       VALUES(?, ?, ?, ?, ?, ?);"""
+                print(get_characters(line["simplified"]))
+                data_tuple = (i, line["traditional"], line["simplified"], line["pinyin"], line["english"], 0)
+                cursor.execute(sqlite_insert_with_param, data_tuple)
+                i += 1
         sqlite_connection.commit()
         print("success ", cursor.rowcount)
         cursor.close()
+
     except sqlite3.Error as error:
         print("Error while working with SQLite", error)
-        print(data_tuple)
     finally:
         if sqlite_connection:
             sqlite_connection.close()
@@ -133,6 +168,8 @@ def delete_tuple():
         if sqlite_connection:
             sqlite_connection.close()
             print("Connection to SQLite is closed")
+
+
 def delete_all():
     try:
         sqlite_connection = sqlite3.connect('resources/database.db')
@@ -150,3 +187,6 @@ def delete_all():
         if sqlite_connection:
             sqlite_connection.close()
             print("Connection to SQLite is closed")
+
+#delete_all()
+insert_tuples()
