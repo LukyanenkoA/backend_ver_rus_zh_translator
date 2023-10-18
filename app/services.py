@@ -18,10 +18,24 @@ async def get_word_by_simplified(simplified: str, db: _orm.Session):
     return db.query(_model.Word).filter(_model.Word.simplified == simplified).first()
 
 
+async def get_word_by_simplified_rus(simplified: str, db: _orm.Session):
+    return db.query(_model.WordRUS).filter(_model.WordRUS.simplified == simplified).first()
+
+
 async def create_word(word: _schemas.WordCreate, db: _orm.Session):
     word_obj = _model.Word(
         traditional=word.traditional, simplified=word.simplified, english=word.english,
         pinyin=word.pinyin, hsk=word.hsk)
+    db.add(word_obj)
+    db.commit()
+    db.refresh(word_obj)
+    return word_obj
+
+
+async def create_word_rus(word: _schemas.WordCreateRUS, db: _orm.Session):
+    word_obj = _model.WordRUS(
+        simplified=word.simplified, russian=word.russian,
+        pinyin=word.pinyin)
     db.add(word_obj)
     db.commit()
     db.refresh(word_obj)

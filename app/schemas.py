@@ -21,3 +21,22 @@ class Word(_WordBase):
 
     class Config:
         orm_mode = True
+
+
+class _WordBaseRUS(_pydantic.BaseModel):
+    simplified: str
+    russian: str
+    pinyin: str
+
+
+class WordCreateRUS(_WordBaseRUS):
+    pass
+
+    class Config:
+        orm_mode = True
+
+class WordRUS(_WordBaseRUS):
+    id: int
+
+    class Config:
+        orm_mode = True
