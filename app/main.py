@@ -75,3 +75,4 @@ async def get_word(word, db: _orm.Session = _fastapi.Depends(_services.get_db)):
     if db_word is None:
         return _fastapi.responses.JSONResponse(status_code=404, content={"message": "No such word found"})
     return db_word
+
