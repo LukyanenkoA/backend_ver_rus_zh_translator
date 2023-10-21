@@ -12,7 +12,6 @@ class Word(_database.Base):
     simplified = _sql.Column(_sql.String, unique=True, index=True)
     english = _sql.Column(_sql.String)
     pinyin = _sql.Column(_sql.String)
-    hsk = _sql.Column(_sql.Integer)
 
 
 class WordRUS(_database.Base):

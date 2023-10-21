@@ -6,7 +6,6 @@ class _WordBase(_pydantic.BaseModel):
     simplified: str
     english: str
     pinyin: str
-    hsk: int
 
 
 class WordCreate(_WordBase):
