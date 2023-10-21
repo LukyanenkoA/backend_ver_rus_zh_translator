@@ -85,7 +85,7 @@ with open('resources/cedict_ts.u8', encoding='utf-8') as file:
         # print("Saving to database (this may take a few minutes) . . .")
         # for one_dict in list_of_dicts:
         #     new_word = _model.Word(traditional=one_dict["traditional"], simplified=one_dict["simplified"],
-        #                            english=one_dict["english"], pinyin=one_dict["pinyin"], hsk=one_dict["hsk"])
+        #                            english=one_dict["english"], pinyin=one_dict["pinyin"])
         #     new_word.save()
 
 parsed_dict = main()
@@ -134,9 +134,9 @@ def insert_tuples():
                 f = True
             if not f:
                 sqlite_insert_with_param = """INSERT INTO words
-                                      (id,traditional, simplified, pinyin, english, hsk)
-                                       VALUES(?, ?, ?, ?, ?, ?);"""
-                data_tuple = (i, line["traditional"], line["simplified"], line["pinyin"], line["english"], 0)
+                                      (id,traditional, simplified, pinyin, english)
+                                       VALUES(?, ?, ?, ?, ?);"""
+                data_tuple = (i, line["traditional"], line["simplified"], line["pinyin"], line["english"])
                 cursor.execute(sqlite_insert_with_param, data_tuple)
                 i += 1
         sqlite_connection.commit()

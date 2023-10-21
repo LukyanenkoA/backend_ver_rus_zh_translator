@@ -25,7 +25,7 @@ async def get_word_by_simplified_rus(simplified: str, db: _orm.Session):
 async def create_word(word: _schemas.WordCreate, db: _orm.Session):
     word_obj = _model.Word(
         traditional=word.traditional, simplified=word.simplified, english=word.english,
-        pinyin=word.pinyin, hsk=word.hsk)
+        pinyin=word.pinyin)
     db.add(word_obj)
     db.commit()
     db.refresh(word_obj)
@@ -44,7 +44,7 @@ async def create_word_rus(word: _schemas.WordCreateRUS, db: _orm.Session):
 # async def fill_in(list_of_dicts: List, db: _orm.Session):
 #     for one_dict in list_of_dicts:
 #         new_word = _model.Word(traditional=one_dict['traditional'], simplified=one_dict['simplified'],
-#                                english=one_dict['english'], pinyin=one_dict['pinyin'], hsk=1)
+#                                english=one_dict['english'], pinyin=one_dict['pinyin'])
 #         db.add(new_word)
 #         db.commit()
 #         db.refresh(new_word)

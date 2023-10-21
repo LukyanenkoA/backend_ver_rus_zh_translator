@@ -44,8 +44,8 @@ with open('resources/dabkrs_v91_1.u8', encoding='utf-16') as file:
 
 parsed_dict = main()
 
-
 print(parsed_dict)
+
 
 def create_table():
     f = False
@@ -70,6 +70,7 @@ def create_table():
             print("Connection to SQLite is closed")
             return f
 
+
 def insert_tuples():
     i = 1
     try:
@@ -83,7 +84,7 @@ def insert_tuples():
             record = cursor.fetchall()
             if record:
                 f = True
-            if not f:
+            if not f and (line["pinyin"] != '_'):
                 sqlite_insert_with_param = """INSERT INTO words_rus
                                       (id, simplified, russian, pinyin)
                                        VALUES(?, ?, ?, ?);"""
@@ -100,6 +101,7 @@ def insert_tuples():
         if sqlite_connection:
             sqlite_connection.close()
             print("Connection to SQLite is closed")
+
 
 def delete_all():
     try:
@@ -119,6 +121,7 @@ def delete_all():
             sqlite_connection.close()
             print("Connection to SQLite is closed")
 
+
 def delete_tuple():
     try:
         sqlite_connection = sqlite3.connect('resources/database.db')
@@ -137,6 +140,7 @@ def delete_tuple():
             sqlite_connection.close()
             print("Connection to SQLite is closed")
 
-#create_table()
-#insert_tuples()
-delete_tuple()
+
+# create_table()
+insert_tuples()
+# delete_tuple()
