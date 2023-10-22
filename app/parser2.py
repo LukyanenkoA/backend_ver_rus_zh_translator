@@ -10,7 +10,6 @@ with open('resources/dabkrs_v91_1.u8', encoding='utf-16') as file:
     lines = text.split('\n\n')
     dict_lines = list(lines)
 
-
     # define functions
 
     def parse_line(line):

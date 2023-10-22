@@ -34,6 +34,7 @@ class WordCreateRUS(_WordBaseRUS):
     class Config:
         orm_mode = True
 
+
 class WordRUS(_WordBaseRUS):
     id: int
 
