@@ -2,9 +2,11 @@ import fastapi as _fastapi
 import sqlalchemy.orm as _orm
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
+from fastapi.requests import Request
 
 import requests
 import re
+from pydantic import BaseModel
 
 import app.services as _services, app.schemas as _schemas, app.model as _model
 
@@ -100,3 +102,14 @@ async def stroke_order(q: str):
     return Response(
         content=content, headers={"Content-Type": headers.get("Content-Type")}
     )
+
+
+class GoqhanziResponse(BaseModel):
+    results: list[str]
+
+
+@app.post("/goqhanzi")
+async def goqhanzi(request: Request):
+    body = await request.body()
+    response = requests.post("https://www.qhanzi.com/goqhanzi/", body.decode())
+    return GoqhanziResponse.model_validate_json(response.content)
