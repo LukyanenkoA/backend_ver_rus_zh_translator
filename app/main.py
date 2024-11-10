@@ -54,8 +54,8 @@ origins = [
     "https://lukyanenkoa.github.io/web_ver_rus_zh_translator/",
     "http://localhost:8000",
     "http://127.0.0.1:8000/api/words/",
+    "https://130.193.46.137:8000",
     "*",
-    "130.193.46.137"
 ]
 
 app.add_middleware(
