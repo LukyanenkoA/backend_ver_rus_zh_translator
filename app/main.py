@@ -1,5 +1,6 @@
 import fastapi as _fastapi
 import sqlalchemy.orm as _orm
+from fastapi import Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 from fastapi.requests import Request
@@ -10,12 +11,14 @@ from pydantic import BaseModel
 
 import app.services as _services, app.schemas as _schemas, app.model as _model
 
+from googletrans import Translator
+
 app = _fastapi.FastAPI()
 
 
 @app.post("/words")
 async def create_word(
-    word: _schemas.WordCreate, db: _orm.Session = _fastapi.Depends(_services.get_db)
+        word: _schemas.WordCreate, db: _orm.Session = _fastapi.Depends(_services.get_db)
 ):
     db_word = await _services.get_word_by_simplified(word.simplified, db)
     if db_word:
@@ -26,7 +29,7 @@ async def create_word(
 
 @app.post("/words_rus")
 async def create_word(
-    word: _schemas.WordCreateRUS, db: _orm.Session = _fastapi.Depends(_services.get_db)
+        word: _schemas.WordCreateRUS, db: _orm.Session = _fastapi.Depends(_services.get_db)
 ):
     db_word = await _services.get_word_by_simplified_rus(word.simplified, db)
     if db_word:
@@ -103,6 +106,23 @@ async def stroke_order(q: str):
     return Response(
         content=content, headers={"Content-Type": headers.get("Content-Type")}
     )
+
+
+# отдельнo для библиотеки translate
+
+translator = Translator()
+
+
+@app.get("/translate/", response_model=dict)
+async def translate_text(
+        text: str = Query(..., description="Text to be translated")
+):
+    try:
+        translation = translator.translate(text, src='zh-CN', dest='ru')
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Translation error: {str(e)}")
+
+    return {"translated_text": translation.text}
 
 
 class GoqhanziResponse(BaseModel):

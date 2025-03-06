@@ -40,3 +40,7 @@ class WordRUS(_WordBaseRUS):
 
     class Config:
         orm_mode = True
+
+
+class TranslatedText(_pydantic.BaseModel):
+    translated_text: str
