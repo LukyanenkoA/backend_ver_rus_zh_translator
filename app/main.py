@@ -1,3 +1,6 @@
+import os
+from typing import Dict
+
 import fastapi as _fastapi
 import sqlalchemy.orm as _orm
 from fastapi import Query, HTTPException
@@ -7,13 +10,68 @@ from fastapi.requests import Request
 
 import requests
 import re
+
+from gtts import gTTS
 from pydantic import BaseModel
+from starlette.responses import FileResponse
 
 import app.services as _services, app.schemas as _schemas, app.model as _model
 
 from googletrans import Translator
 
 app = _fastapi.FastAPI()
+
+
+tasks: Dict[str, str] = {}
+
+
+# Define a Pydantic model for the TTS request
+class TTSRequest(BaseModel):
+    text: str
+    voice_id: int
+    language: int
+    gender: int
+    age: int
+
+language_codes = {
+    1: 'ru',  # Russian
+    2: 'zh',  # Chinese
+}
+@app.post("/tts/")
+async def generate_speech(request: TTSRequest):
+    # Simulate speech generation
+    task_id = str(len(tasks) + 1)  # Simple task ID generation
+    audio_file = f"speech_{task_id}.mp3"
+    lang_code = language_codes.get(request.language)
+    if not lang_code:
+        lang_code = 'en'
+    # Generate speech using gTTS
+    tts = gTTS(text=request.text, lang=lang_code)  # Change 'en' to the appropriate language code if needed
+    tts.save(audio_file)  # Save the audio file
+
+    # Store the file path in tasks
+    tasks[task_id] = audio_file
+    return {"task_id": task_id}
+
+
+@app.get("/tts/status/{task_id}")
+async def get_speech(task_id: str):
+    if task_id in tasks:
+        return {"task_id": task_id, "audio_file": tasks[task_id]}
+    else:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+
+@app.get("/tts/play/{task_id}")
+async def play_speech(task_id: str):
+    if task_id in tasks:
+        audio_file = tasks[task_id]
+        if os.path.exists(audio_file):
+            return FileResponse(audio_file)
+        else:
+            raise HTTPException(status_code=404, detail="Audio file not found")
+    else:
+        raise HTTPException(status_code=404, detail="Task not found")
 
 
 @app.post("/words")
@@ -108,8 +166,7 @@ async def stroke_order(q: str):
     )
 
 
-# отдельнo для библиотеки translate
-
+# отдельно для библиотеки googletrans
 translator = Translator()
 
 
