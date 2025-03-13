@@ -8,6 +8,7 @@ import fastapi as _fastapi
 import pyaudio as pyaudio
 import sqlalchemy.orm as _orm
 from fastapi import Query, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 from fastapi.requests import Request
@@ -17,6 +18,7 @@ import re
 
 from gtts import gTTS
 from pydantic import BaseModel
+from starlette.responses import FileResponse
 
 from pydub import AudioSegment
 from starlette.responses import FileResponse
@@ -45,8 +47,6 @@ language_codes = {
     1: 'ru',  # Russian
     2: 'zh',  # Chinese
 }
-
-
 @app.post("/tts/")
 async def generate_speech(request: TTSRequest):
     # Simulate speech generation
@@ -253,3 +253,4 @@ async def websocket_endpoint(websocket: WebSocket):
         logging.error(f"Произошла ошибка: {e}")
     finally:
         logging.info("Завершение работы WebSocket.")
+
