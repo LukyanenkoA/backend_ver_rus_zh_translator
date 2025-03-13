@@ -18,3 +18,4 @@ class WordRUS(_database.Base):
     simplified = _sql.Column(_sql.String, unique=True, index=True)
     pinyin = _sql.Column(_sql.String)
     russian = _sql.Column(_sql.String)
+
