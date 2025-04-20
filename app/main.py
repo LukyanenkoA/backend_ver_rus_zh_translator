@@ -127,6 +127,7 @@ origins = [
     "http://localhost:8000",
     "http://127.0.0.1:8000/api/words/",
     "http://130.193.46.137:8000",
+    "https://translate.shoky.ru",
     "*",
 ]
 
