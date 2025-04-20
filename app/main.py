@@ -2,11 +2,12 @@ import io
 import json
 import logging
 import os
-from typing import Dict
+from typing import Dict, Generator, Tuple
 
 import fastapi as _fastapi
 import pyaudio as pyaudio
 import sqlalchemy.orm as _orm
+from botocore.exceptions import ClientError
 from fastapi import Query, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi import Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -18,12 +19,12 @@ import re
 
 from gtts import gTTS
 from pydantic import BaseModel
-from starlette.responses import FileResponse
+from starlette.responses import FileResponse, StreamingResponse
 
 from pydub import AudioSegment
-from starlette.responses import FileResponse
 from vosk import Model, KaldiRecognizer
 
+import boto3
 
 import app.services as _services, app.schemas as _schemas, app.model as _model
 
@@ -31,8 +32,38 @@ from googletrans import Translator
 
 app = _fastapi.FastAPI()
 
-
 tasks: Dict[str, str] = {}
+
+s3 = boto3.client(
+    's3',
+    endpoint_url='https://s3.twcstorage.ru',  # Укажи свой кастомный endpoint
+    aws_access_key_id='9BFGKZB03BFJTWPKHS1G',
+    aws_secret_access_key='hQ9ekLVCdRowNV2hd6DaBnHrmQbaRKB8A1AKoXIQ',
+    region_name='ru-1'  # Укажи нужный регион, если требуется
+)
+bucket_name = '3206f698-44fe1357-cc20-4d9d-8ed9-19d864b63752'
+
+
+def get_s3_metadata(bucket: str, key: str) -> Tuple[bool, str]:
+    """
+    Проверяет существование объекта и возвращает Content-Type.
+    Возвращает: (exists: bool, content_type: str)
+    """
+    try:
+        response = s3.head_object(Bucket=bucket, Key=key)
+        return True, response.get("ContentType", "application/octet-stream")
+    except ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            return False, ""
+        else:
+            raise
+
+
+def stream_s3_object(bucket: str, key: str) -> Generator[bytes, None, None]:
+    s3_object = s3.get_object(Bucket=bucket, Key=key)
+    body = s3_object['Body']
+    for chunk in iter(lambda: body.read(8192), b''):
+        yield chunk
 
 
 # Define a Pydantic model for the TTS request
@@ -43,10 +74,13 @@ class TTSRequest(BaseModel):
     gender: int
     age: int
 
+
 language_codes = {
     1: 'ru',  # Russian
     2: 'zh',  # Chinese
 }
+
+
 @app.post("/tts/")
 async def generate_speech(request: TTSRequest):
     # Simulate speech generation
@@ -58,6 +92,7 @@ async def generate_speech(request: TTSRequest):
     # Generate speech using gTTS
     tts = gTTS(text=request.text, lang=lang_code)  # Change 'en' to the appropriate language code if needed
     tts.save(audio_file)  # Save the audio file
+    s3.upload_file(audio_file, bucket_name, "tts/" + audio_file)
 
     # Store the file path in tasks
     tasks[task_id] = audio_file
@@ -76,9 +111,14 @@ async def get_speech(task_id: str):
 async def play_speech(task_id: str):
     if task_id in tasks:
         audio_file = tasks[task_id]
-        if os.path.exists(audio_file):
-
-            return FileResponse(audio_file)  # Send the audio file for playback
+        audio_file_key = 'tts/' + audio_file
+        exists, content_type = get_s3_metadata(bucket_name, audio_file_key)
+        if exists:
+            return StreamingResponse(
+                stream_s3_object(bucket_name, audio_file_key),
+                media_type=content_type,
+                headers={"Content-Disposition": f"attachment; filename={audio_file_key.split('/')[-1]}"}
+            )
         else:
             raise HTTPException(status_code=404, detail="Audio file not found")
     else:
@@ -205,12 +245,11 @@ async def goqhanzi(request: Request):
     return GoqhanziResponse.model_validate_json(response.content)
 
 
-
 # Настройка логирования
 logging.basicConfig(level=logging.INFO)
 
 # Инициализация модели Vosk
-model = Model("./vosk-model-cn-0.22/vosk-model-cn-0.22")  # Укажите путь к вашей модели
+model = Model("./ai-models/vosk-model-cn-0.22/vosk-model-cn-0.22")  # Укажите путь к вашей модели
 recognizer = KaldiRecognizer(model, 16000)
 
 
@@ -254,4 +293,3 @@ async def websocket_endpoint(websocket: WebSocket):
         logging.error(f"Произошла ошибка: {e}")
     finally:
         logging.info("Завершение работы WebSocket.")
-

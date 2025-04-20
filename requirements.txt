@@ -52,13 +52,9 @@ hstspreload~=2025.1.1
 chardet~=3.0.4
 rfc3986~=1.5.0
 packaging~=23.1
-<<<<<<< HEAD
 pyparsing~=3.2.1
 vosk~=0.3.45
 cffi~=1.17.1
 PyAudio~=0.2.14
 pydub~=0.25.1
-pyparsing~=3.2.1
-=======
-pyparsing~=3.2.1
->>>>>>> 4e881472a2cd4ee5faddb01a3f3ab29692abddb5
+boto3~=1.37.37
