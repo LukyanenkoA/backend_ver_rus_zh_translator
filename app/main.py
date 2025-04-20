@@ -92,7 +92,8 @@ async def generate_speech(request: TTSRequest):
     # Generate speech using gTTS
     tts = gTTS(text=request.text, lang=lang_code)  # Change 'en' to the appropriate language code if needed
     tts.save(audio_file)  # Save the audio file
-    s3.upload_file(audio_file, bucket_name, "tts/" + audio_file)
+    with open(audio_file, 'rb') as f:
+        s3.upload_fileobj(f, bucket_name, "tts/" + audio_file)
 
     # Store the file path in tasks
     tasks[task_id] = audio_file
@@ -249,7 +250,7 @@ async def goqhanzi(request: Request):
 logging.basicConfig(level=logging.INFO)
 
 # Инициализация модели Vosk
-model = Model("./ai-models/vosk-model-cn-0.22/vosk-model-cn-0.22")  # Укажите путь к вашей модели
+model = Model("./ai-models/vosk-model-cn-0.22")  # Укажите путь к вашей модели
 recognizer = KaldiRecognizer(model, 16000)
 
 
