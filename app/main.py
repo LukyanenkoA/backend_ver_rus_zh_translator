@@ -4,6 +4,7 @@ import logging
 import os
 from typing import Dict, Generator, Tuple
 
+from botocore.config import Config
 import fastapi as _fastapi
 import pyaudio as pyaudio
 import sqlalchemy.orm as _orm
@@ -39,7 +40,8 @@ s3 = boto3.client(
     endpoint_url='https://s3.twcstorage.ru',  # Укажи свой кастомный endpoint
     aws_access_key_id='9BFGKZB03BFJTWPKHS1G',
     aws_secret_access_key='hQ9ekLVCdRowNV2hd6DaBnHrmQbaRKB8A1AKoXIQ',
-    region_name='ru-1'  # Укажи нужный регион, если требуется
+    region_name='ru-1',  # Укажи нужный регион, если требуется
+    config=Config(signature_version='s3')
 )
 bucket_name = '3206f698-44fe1357-cc20-4d9d-8ed9-19d864b63752'
 
