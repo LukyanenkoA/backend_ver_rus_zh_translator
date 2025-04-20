@@ -39,4 +39,4 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USERNAME }}
           key: ${{ secrets.DEPLOY_KEY }}
-          script: sudo docker compose pull && sudo docker compose up -d
+          script: cd backend && sudo docker compose pull && sudo docker compose up -d
