@@ -4,7 +4,7 @@ WORKDIR /code
 
 COPY ./requirements.txt /code/requirements.txt
 
-RUN sudo apt-get install portaudio19-dev
+RUN apt-get install portaudio19-dev
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
 COPY ./resources /code/resources
